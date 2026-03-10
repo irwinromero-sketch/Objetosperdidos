@@ -10,7 +10,7 @@ public class IrwinController {
 
     @GetMapping("/saludo")
     public String saludo() {
-        return "Hola, soy Irwin!";
+        return "Hola, soy Irwin Romero!";
     }
 
     @GetMapping("/status")
