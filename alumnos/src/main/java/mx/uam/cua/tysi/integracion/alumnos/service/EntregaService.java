@@ -7,6 +7,8 @@ public interface EntregaService {
 
     EntregaDTO crear(EntregaDTO entregaDTO);
 
+    EntregaDTO obtenerPorId(Long id);
+
     List<EntregaDTO> obtenerTodos();
 
     List<EntregaDTO> obtenerPorAlumnoReporta(Long alumnoId);

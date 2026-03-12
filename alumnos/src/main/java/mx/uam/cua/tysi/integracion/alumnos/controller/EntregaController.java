@@ -21,6 +21,11 @@ public class EntregaController {
         return entregaService.crear(entregaDTO);
     }
 
+    @GetMapping("/{id}")
+    public EntregaDTO obtenerPorId(@PathVariable Long id) {
+        return entregaService.obtenerPorId(id);
+    }
+
     @GetMapping
     public List<EntregaDTO> obtenerTodos() {
         return entregaService.obtenerTodos();

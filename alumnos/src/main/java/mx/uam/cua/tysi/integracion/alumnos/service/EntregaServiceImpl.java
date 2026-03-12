@@ -62,6 +62,13 @@ public class EntregaServiceImpl implements EntregaService {
     }
 
     @Override
+    public EntregaDTO obtenerPorId(Long id) {
+        Entrega entrega = entregaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Entrega no encontrada"));
+        return convertirADTO(entrega);
+    }
+
+    @Override
     public List<EntregaDTO> obtenerTodos() {
         List<Entrega> entregas = entregaRepository.findAll();
         List<EntregaDTO> dtos = new ArrayList<>();
