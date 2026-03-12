@@ -26,7 +26,12 @@ public class ObjetoController {
         return objetoService.obtenerTodos();
     }
 
-    @GetMapping("/{alumnoId}")
+    @GetMapping("/buscar/{id}")
+    public ObjetoDTO obtenerPorId(@PathVariable Long id) {
+        return objetoService.obtenerPorId(id);
+    }
+
+    @GetMapping("/alumno/{alumnoId}")
     public List<ObjetoDTO> obtenerPorAlumno(@PathVariable Long alumnoId) {
         return objetoService.obtenerPorAlumno(alumnoId);
     }
@@ -34,6 +39,11 @@ public class ObjetoController {
     @PatchMapping("/{id}/estado")
     public ObjetoDTO actualizarEstado(@PathVariable Long id, @RequestBody String estado) {
         return objetoService.actualizarEstado(id, estado);
+    }
+
+    @PatchMapping("/{id}/descripcion")
+    public ObjetoDTO actualizarDescripcion(@PathVariable Long id, @RequestBody String descripcion) {
+        return objetoService.actualizarDescripcion(id, descripcion);
     }
 
     @DeleteMapping("/{id}")

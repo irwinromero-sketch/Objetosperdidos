@@ -44,6 +44,13 @@ public class ObjetoServiceImpl implements ObjetoService {
     }
 
     @Override
+    public ObjetoDTO obtenerPorId(Long id) {
+        Objeto objeto = objetoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Objeto no encontrado"));
+        return convertirADTO(objeto);
+    }
+
+    @Override
     public List<ObjetoDTO> obtenerTodos() {
         List<Objeto> objetos = objetoRepository.findAll();
         List<ObjetoDTO> dtos = new ArrayList<>();
@@ -69,6 +76,17 @@ public class ObjetoServiceImpl implements ObjetoService {
                 .orElseThrow(() -> new RuntimeException("Objeto no encontrado"));
 
         objeto.setEstado(estado);
+        objeto = objetoRepository.save(objeto);
+
+        return convertirADTO(objeto);
+    }
+
+    @Override
+    public ObjetoDTO actualizarDescripcion(Long id, String descripcion) {
+        Objeto objeto = objetoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Objeto no encontrado"));
+
+        objeto.setDescripcion(descripcion);
         objeto = objetoRepository.save(objeto);
 
         return convertirADTO(objeto);
