@@ -40,4 +40,10 @@ public class EntregaController {
     public List<EntregaDTO> obtenerPorAlumnoRecibe(@PathVariable Long alumnoId) {
         return entregaService.obtenerPorAlumnoRecibe(alumnoId);
     }
+
+    @DeleteMapping("/{id}")
+    public String eliminar(@PathVariable Long id) {
+        entregaService.eliminar(id);
+        return "Entrega eliminada correctamente";
+    }
 }

@@ -14,4 +14,6 @@ public interface EntregaService {
     List<EntregaDTO> obtenerPorAlumnoReporta(Long alumnoId);
 
     List<EntregaDTO> obtenerPorAlumnoRecibe(Long alumnoId);
+
+    void eliminar(Long id);
 }

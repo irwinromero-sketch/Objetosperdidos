@@ -98,6 +98,13 @@ public class EntregaServiceImpl implements EntregaService {
         return dtos;
     }
 
+    @Override
+    public void eliminar(Long id) {
+        Entrega entrega = entregaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Entrega no encontrada"));
+        entregaRepository.delete(entrega);
+    }
+
     private EntregaDTO convertirADTO(Entrega entrega) {
         EntregaDTO dto = new EntregaDTO();
         dto.setId(entrega.getId());
