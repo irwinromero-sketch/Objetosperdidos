@@ -20,6 +20,9 @@ public class Objeto {
     @Column(nullable = false)
     private String estado;
 
+    @Column(nullable = true)
+    private String imagen;
+
     @ManyToOne
     @JoinColumn(name = "id_alumno", referencedColumnName = "id", nullable = false)
     private Alumno alumno;
@@ -35,6 +38,9 @@ public class Objeto {
 
     public String getEstado() { return estado; }
     public void setEstado(String estado) { this.estado = estado; }
+
+    public String getImagen() { return imagen; }
+    public void setImagen(String imagen) { this.imagen = imagen; }
 
     public Alumno getAlumno() { return alumno; }
     public void setAlumno(Alumno alumno) { this.alumno = alumno; }

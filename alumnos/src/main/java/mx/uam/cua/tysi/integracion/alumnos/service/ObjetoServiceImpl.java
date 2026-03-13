@@ -105,6 +105,9 @@ public class ObjetoServiceImpl implements ObjetoService {
         dto.setDescripcion(objeto.getDescripcion());
         dto.setFecha(objeto.getFecha());
         dto.setEstado(objeto.getEstado());
+        if (objeto.getImagen() != null) {
+            dto.setImagenUrl("http://localhost:8080/imagenes/" + objeto.getImagen());
+        }
         dto.setAlumno(alumnoMapper.alumnoToAlumnoDTO(objeto.getAlumno()));
         return dto;
     }

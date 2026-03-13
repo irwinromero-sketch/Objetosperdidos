@@ -8,6 +8,7 @@ public class ObjetoDTO {
     private String descripcion;
     private LocalDate fecha;
     private String estado;
+    private String imagenUrl;
     private AlumnoDTO alumno;
 
     public Long getId() { return id; }
@@ -21,6 +22,9 @@ public class ObjetoDTO {
 
     public String getEstado() { return estado; }
     public void setEstado(String estado) { this.estado = estado; }
+
+    public String getImagenUrl() { return imagenUrl; }
+    public void setImagenUrl(String imagenUrl) { this.imagenUrl = imagenUrl; }
 
     public AlumnoDTO getAlumno() { return alumno; }
     public void setAlumno(AlumnoDTO alumno) { this.alumno = alumno; }
