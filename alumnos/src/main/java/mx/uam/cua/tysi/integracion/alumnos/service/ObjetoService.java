@@ -17,5 +17,7 @@ public interface ObjetoService {
 
     ObjetoDTO actualizarDescripcion(Long id, String descripcion);
 
+    ObjetoDTO actualizarImagen(Long id, String nombreImagen);
+
     void eliminar(Long id);
 }

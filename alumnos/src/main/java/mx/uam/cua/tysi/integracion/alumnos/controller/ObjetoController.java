@@ -46,6 +46,11 @@ public class ObjetoController {
         return objetoService.actualizarDescripcion(id, descripcion);
     }
 
+    @PatchMapping("/{id}/imagen")
+    public ObjetoDTO actualizarImagen(@PathVariable Long id, @RequestBody String nombreImagen) {
+        return objetoService.actualizarImagen(id, nombreImagen);
+    }
+
     @DeleteMapping("/{id}")
     public String eliminar(@PathVariable Long id) {
         objetoService.eliminar(id);

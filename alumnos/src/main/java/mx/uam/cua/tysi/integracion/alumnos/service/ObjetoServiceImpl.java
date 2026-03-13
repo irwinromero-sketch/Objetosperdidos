@@ -93,6 +93,17 @@ public class ObjetoServiceImpl implements ObjetoService {
     }
 
     @Override
+    public ObjetoDTO actualizarImagen(Long id, String nombreImagen) {
+        Objeto objeto = objetoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Objeto no encontrado"));
+
+        objeto.setImagen(nombreImagen);
+        objeto = objetoRepository.save(objeto);
+
+        return convertirADTO(objeto);
+    }
+
+    @Override
     public void eliminar(Long id) {
         Objeto objeto = objetoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Objeto no encontrado"));
