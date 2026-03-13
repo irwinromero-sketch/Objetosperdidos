@@ -55,7 +55,7 @@ public class ImagenController {
                     .body(resource);
 
         } catch (MalformedURLException e) {
-            return ResponseEntity.badFound().build();
+            return ResponseEntity.badRequest().build();
         }
     }
 }
