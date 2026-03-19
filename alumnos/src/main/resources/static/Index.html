@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Objetos Perdidos — UAM</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg bg-warning">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand fw-bold" href="#"> Objetos Perdidos UAM</a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" href="#">Objetos</a>
+
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-5">
+    <h3 class="text-center mb-4">Buscar objeto perdido</h3>
+
+    <div class="text-center mb-3">
+        <button class="btn btn-warning me-2" onclick="setSearchMode('objeto')">Por ID de objeto</button>
+        <button class="btn btn-outline-warning" onclick="setSearchMode('alumno')">Por ID de alumno</button>
+    </div>
+
+    <div class="text-center mb-4">
+        <input id="searchInput" type="number" class="form-control d-inline w-25" placeholder="Escribe el ID...">
+        <button class="btn btn-dark ms-2" onclick="buscar()">Buscar</button>
+    </div>
+</div>
+
+<!-- RESULTADO OBJETO INDIVIDUAL -->
+<div id="resultado" style="display:none;">
+    <div class="container">
+
+        <div id="cardObjeto" style="display:none;">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <img id="objImagen" src="assets/imagen.jpg" class="card-img-top"
+                             style="height:250px; object-fit:cover;"
+                             onerror="this.src='assets/imagen.jpg'">
+                        <div class="card-body">
+                            <h5 class="card-title" id="objDescripcion"></h5>
+                            <p><strong>ID:</strong> <span id="objId"></span></p>
+                            <p><strong>Fecha:</strong> <span id="objFecha"></span></p>
+                            <p><strong>Estado:</strong> <span id="estadoBadge" class="badge"></span></p>
+                            <p><strong>Reportado por:</strong> <span id="objAlumno"></span></p>
+                            <p><strong>Carrera:</strong> <span id="objCarrera"></span></p>
+                            <p><strong>Email:</strong> <span id="objEmail"></span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="listaObjetos" style="display:none;">
+            <h5 class="text-center mb-3">Objetos reportados por este alumno</h5>
+            <div id="listaContainer" class="row justify-content-center"></div>
+        </div>
+
+        <div id="errorMsg" class="text-center" style="display:none;">
+            <p class="text-danger mt-3">No se encontró ningún resultado con ese ID.</p>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
