@@ -1,108 +1,199 @@
 const BASE_URL = 'http://localhost:8080';
-let searchMode = 'objeto';
 
-function setSearchMode(mode) {
-    searchMode = mode;
-    ocultarResultados();
+
+function cargarTodos() {
+    fetch(`${BASE_URL}/objetos`)
+        .then(res => res.json())
+        .then(data => renderTabla(data))
+        .catch(() => alert('Error al cargar objetos'));
 }
 
-function buscar() {
-    const id = document.getElementById('searchInput').value.trim();
-    if (!id) return;
-    ocultarResultados();
+function renderTabla(objetos) {
+    const tbody = document.getElementById('tablaObjetos');
+    tbody.innerHTML = '';
 
-    if (searchMode === 'objeto') {
-        buscarPorObjeto(id);
-    } else {
-        buscarPorAlumno(id);
+    if (objetos.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-muted">No hay objetos registrados</td></tr>';
+        return;
     }
+
+    objetos.forEach(obj => {
+        const estadoClass = obj.estado === 'ENCONTRADO' ? 'bg-success' : 'bg-danger';
+        const alumno = obj.alumno ? `${obj.alumno.nombre} ${obj.alumno.apellido}` : '—';
+
+        tbody.innerHTML += `
+            <tr>
+                <td>${obj.id}</td>
+                <td>${obj.descripcion}</td>
+                <td>${obj.fecha}</td>
+                <td><span class="badge ${estadoClass}">${obj.estado}</span></td>
+                <td>${alumno}</td>
+                <td>
+                    <button class="btn btn-sm btn-warning me-1"
+                        onclick="abrirEditar(${obj.id}, '${obj.descripcion}', '${obj.estado}')">
+                        Editar
+                    </button>
+                    <button class="btn btn-sm btn-danger"
+                        onclick="eliminarObjeto(${obj.id})">
+                        Eliminar
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
 }
 
-function buscarPorObjeto(id) {
+
+function guardarObjeto() {
+    const descripcion = document.getElementById('inputDescripcion').value.trim();
+    const alumnoId = document.getElementById('inputAlumno').value.trim();
+    const msg = document.getElementById('mensajeGuardar');
+
+    if (!descripcion || !alumnoId) {
+        msg.innerHTML = '<span class="text-danger">Completa todos los campos.</span>';
+        return;
+    }
+
+    fetch(`${BASE_URL}/objetos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            descripcion: descripcion,
+            alumno: { id: parseInt(alumnoId) }
+        })
+    })
+    .then(res => {
+        if (!res.ok) throw new Error();
+        return res.json();
+    })
+    .then(() => {
+        msg.innerHTML = '<span class="text-success">Objeto guardado correctamente.</span>';
+        document.getElementById('inputDescripcion').value = '';
+        document.getElementById('inputAlumno').value = '';
+        cargarTodos();
+    })
+    .catch(() => {
+        msg.innerHTML = '<span class="text-danger">Error al guardar el objeto.</span>';
+    });
+}
+
+
+function buscarPorId() {
+    const id = document.getElementById('inputBuscarObjeto').value.trim();
+    const div = document.getElementById('resultadoBusqueda');
+    if (!id) return;
+
     fetch(`${BASE_URL}/objetos/buscar/${id}`)
         .then(res => {
-            if (!res.ok) throw new Error('No encontrado');
+            if (!res.ok) throw new Error();
             return res.json();
         })
-        .then(data => mostrarObjeto(data))
-        .catch(() => mostrarError());
+        .then(obj => renderResultado([obj]))
+        .catch(() => {
+            div.innerHTML = '<span class="text-danger">No se encontró ningún objeto con ese ID.</span>';
+        });
 }
 
-function buscarPorAlumno(id) {
+// =====================
+// BUSCAR POR ALUMNO
+// =====================
+function buscarPorAlumno() {
+    const id = document.getElementById('inputBuscarAlumno').value.trim();
+    const div = document.getElementById('resultadoBusqueda');
+    if (!id) return;
+
     fetch(`${BASE_URL}/objetos/alumno/${id}`)
         .then(res => {
-            if (!res.ok) throw new Error('No encontrado');
+            if (!res.ok) throw new Error();
             return res.json();
         })
         .then(data => {
-            if (!data || data.length === 0) { mostrarError(); return; }
-            mostrarLista(data);
+            if (!data || data.length === 0) {
+                div.innerHTML = '<span class="text-danger">No se encontraron objetos para ese alumno.</span>';
+                return;
+            }
+            renderResultado(data);
         })
-        .catch(() => mostrarError());
+        .catch(() => {
+            div.innerHTML = '<span class="text-danger">Error al buscar.</span>';
+        });
 }
 
-function mostrarObjeto(obj) {
-    const badge = document.getElementById('estadoBadge');
-    badge.textContent = obj.estado;
-    badge.className = 'badge ' + (obj.estado === 'ENCONTRADO' ? 'bg-success' : 'bg-danger');
-
-    document.getElementById('objId').textContent = obj.id;
-    document.getElementById('objDescripcion').textContent = obj.descripcion;
-    document.getElementById('objFecha').textContent = obj.fecha;
-    document.getElementById('objAlumno').textContent = obj.alumno
-        ? `${obj.alumno.nombre} ${obj.alumno.apellido}` : '—';
-    document.getElementById('objCarrera').textContent = obj.alumno?.carrera || '—';
-    document.getElementById('objEmail').textContent = obj.alumno?.email || '—';
-
-    const img = document.getElementById('objImagen');
-    img.src = obj.imagenUrl ? obj.imagenUrl : 'assets/imagen.jpg';
-    img.alt = obj.descripcion;
-
-    document.getElementById('resultado').style.display = 'block';
-    document.getElementById('cardObjeto').style.display = 'block';
-}
-
-function mostrarLista(objetos) {
-    const container = document.getElementById('listaContainer');
-    container.innerHTML = '';
-
+function renderResultado(objetos) {
+    const div = document.getElementById('resultadoBusqueda');
+    let html = `
+        <table class="table table-bordered text-center">
+            <thead class="table-warning">
+                <tr><th>ID</th><th>Descripción</th><th>Fecha</th><th>Estado</th><th>Alumno</th></tr>
+            </thead>
+            <tbody>
+    `;
     objetos.forEach(obj => {
-        const badgeClass = obj.estado === 'ENCONTRADO' ? 'bg-success' : 'bg-danger';
-        const imgSrc = obj.imagenUrl ? obj.imagenUrl : 'assets/imagen1.jpg';
+        const estadoClass = obj.estado === 'ENCONTRADO' ? 'bg-success' : 'bg-danger';
         const alumno = obj.alumno ? `${obj.alumno.nombre} ${obj.alumno.apellido}` : '—';
-
-        container.innerHTML += `
-            <div class="col-md-4 mb-3">
-                <div class="card">
-                    <img src="${imgSrc}" class="card-img-top" style="height:180px; object-fit:cover;"
-                         onerror="this.src='assets/imagen.jpg'">
-                    <div class="card-body">
-                        <h6 class="card-title">${obj.descripcion}</h6>
-                        <p class="mb-1"><strong>Fecha:</strong> ${obj.fecha}</p>
-                        <p class="mb-1"><strong>Alumno:</strong> ${alumno}</p>
-                        <span class="badge ${badgeClass}">${obj.estado}</span>
-                    </div>
-                </div>
-            </div>
+        html += `
+            <tr>
+                <td>${obj.id}</td>
+                <td>${obj.descripcion}</td>
+                <td>${obj.fecha}</td>
+                <td><span class="badge ${estadoClass}">${obj.estado}</span></td>
+                <td>${alumno}</td>
+            </tr>
         `;
     });
-
-    document.getElementById('resultado').style.display = 'block';
-    document.getElementById('listaObjetos').style.display = 'block';
+    html += '</tbody></table>';
+    div.innerHTML = html;
 }
 
-function mostrarError() {
-    document.getElementById('resultado').style.display = 'block';
-    document.getElementById('errorMsg').style.display = 'block';
+// =====================
+// EDITAR
+// =====================
+function abrirEditar(id, descripcion, estado) {
+    document.getElementById('editId').value = id;
+    document.getElementById('editDescripcion').value = descripcion;
+    document.getElementById('editEstado').value = estado;
+    document.getElementById('mensajeEditar').innerHTML = '';
+    new bootstrap.Modal(document.getElementById('modalEditar')).show();
 }
 
-function ocultarResultados() {
-    document.getElementById('resultado').style.display = 'none';
-    document.getElementById('cardObjeto').style.display = 'none';
-    document.getElementById('listaObjetos').style.display = 'none';
-    document.getElementById('errorMsg').style.display = 'none';
+function guardarEdicion() {
+    const id = document.getElementById('editId').value;
+    const descripcion = document.getElementById('editDescripcion').value.trim();
+    const estado = document.getElementById('editEstado').value;
+    const msg = document.getElementById('mensajeEditar');
+
+    fetch(`${BASE_URL}/objetos/${id}/descripcion`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'text/plain' },
+        body: descripcion
+    })
+    .then(res => { if (!res.ok) throw new Error(); return res.json(); })
+    .then(() => {
+        return fetch(`${BASE_URL}/objetos/${id}/estado`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'text/plain' },
+            body: estado
+        });
+    })
+    .then(res => { if (!res.ok) throw new Error(); return res.json(); })
+    .then(() => {
+        msg.innerHTML = '<span class="text-success">Objeto actualizado correctamente.</span>';
+        cargarTodos();
+        setTimeout(() => bootstrap.Modal.getInstance(document.getElementById('modalEditar')).hide(), 1000);
+    })
+    .catch(() => {
+        msg.innerHTML = '<span class="text-danger">Error al actualizar el objeto.</span>';
+    });
 }
 
-document.getElementById('searchInput').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') buscar();
-});
+// =====================
+// ELIMINAR
+// =====================
+function eliminarObjeto(id) {
+    if (!confirm(`¿Eliminar el objeto con ID ${id}?`)) return;
+
+    fetch(`${BASE_URL}/objetos/${id}`, { method: 'DELETE' })
+        .then(res => { if (!res.ok) throw new Error(); })
+        .then(() => cargarTodos())
+        .catch(() => alert('Error al eliminar el objeto'));
+}
