@@ -19,30 +19,39 @@ public class PaisServiceImpl implements PaisService {
     @Override
     public PaisDTO obtenerInfoPais(String nombre) {
 
-        // 1. REST Countries — intenta español primero, luego inglés como respaldo
+        // 1. REST Countries
         JsonNode countriesJson = buscarPais(nombre);
-
         PaisDTO dto = paisMapper.fromCountriesJson(countriesJson);
 
-        // 2. Open Meteo
-        JsonNode meteoJson = webClient.get()
-                .uri("https://api.open-meteo.com/v1/forecast?latitude=" + dto.getLatitud()
-                        + "&longitude=" + dto.getLongitud()
-                        + "&current=temperature_2m,relative_humidity_2m,weather_code")
-                .retrieve()
-                .bodyToMono(JsonNode.class)
-                .block();
+        // 2. Open Meteo — si falla no rompe todo
+        try {
+            JsonNode meteoJson = webClient.get()
+                    .uri("https://api.open-meteo.com/v1/forecast?latitude=" + dto.getLatitud()
+                            + "&longitude=" + dto.getLongitud()
+                            + "&current=temperature_2m,relative_humidity_2m,weather_code")
+                    .retrieve()
+                    .bodyToMono(JsonNode.class)
+                    .block();
+            paisMapper.agregarClima(dto, meteoJson);
+        } catch (Exception e) {
+            dto.setClima("No disponible");
+            dto.setTemperatura(0);
+            dto.setHumedad(0);
+        }
 
-        paisMapper.agregarClima(dto, meteoJson);
-
-        // 3. CoinGecko
-        JsonNode cryptoJson = webClient.get()
-                .uri("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=mxn,usd")
-                .retrieve()
-                .bodyToMono(JsonNode.class)
-                .block();
-
-        paisMapper.agregarCrypto(dto, cryptoJson);
+        // 3. CoinGecko — si falla no rompe todo
+        try {
+            JsonNode cryptoJson = webClient.get()
+                    .uri("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=mxn,usd")
+                    .retrieve()
+                    .bodyToMono(JsonNode.class)
+                    .block();
+            paisMapper.agregarCrypto(dto, cryptoJson);
+        } catch (Exception e) {
+            dto.setBitcoinEnUsd(0);
+            dto.setBitcoinEnMxn(0);
+            dto.setDolarEnMxn(0);
+        }
 
         return dto;
     }
